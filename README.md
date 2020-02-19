@@ -1,6 +1,6 @@
-# UsdBna
+# Doppler currency
 
-This App shows Usd Quotation today of the Banco Nación Argentina
+This App shows Usd currency today of the Banco Nación Argentina
 
 # Technology
 
