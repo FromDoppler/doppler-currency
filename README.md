@@ -1,4 +1,4 @@
-# Doppler currency
+# Doppler Currency
 
 This App shows Usd currency today of the Banco Nación Argentina
 
