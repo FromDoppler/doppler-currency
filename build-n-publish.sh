@@ -99,9 +99,6 @@ canonicalTag=${preReleasePrefix}${versionFullForTag}
 
 docker build \
     -t ${imageName}:${canonicalTag} \
-    --build-arg EncryptionSettings__InitVectorAsAsciiString="$EncryptionSettings__InitVectorAsAsciiString" \
-    --build-arg EncryptionSettings__SaltValueAsAsciiString="$EncryptionSettings__SaltValueAsAsciiString" \
-    --build-arg EncryptionSettings__Password="$EncryptionSettings__Password" \
     --build-arg version=${preReleasePrefix}${versionFull} \
     .
 
