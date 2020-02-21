@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using CrossCutting;
 using CrossCutting.SlackHooksService;
+using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
 using Microsoft.AspNetCore.Builder;
@@ -68,6 +69,8 @@ namespace Doppler.Currency
             var bnaSettings = new BnaSettings();
             Configuration.GetSection("BnaService").Bind(bnaSettings);
             services.AddSingleton(bnaSettings);
+
+            services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retry)

@@ -9,8 +9,8 @@ using AngleSharp.Html.Parser;
 using CrossCutting;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Dtos;
+using Doppler.Currency.Logger;
 using Doppler.Currency.Settings;
-using Microsoft.Extensions.Logging;
 
 namespace Doppler.Currency.Services
 {
@@ -19,27 +19,28 @@ namespace Doppler.Currency.Services
         private readonly HttpClient _httpClient;
         private readonly BnaSettings _bnaSettings;
         private readonly ISlackHooksService _slackHooksService;
-        private readonly ILogger<BnaService> _logger;
+        private readonly ILoggerAdapter<BnaService> _logger;
 
         public BnaService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings bnaClientPoliciesSettings,
             BnaSettings bnaSettings,
             ISlackHooksService slackHooksService,
-            ILogger<BnaService> logger) =>
+            ILoggerAdapter<BnaService> logger) =>
             (_httpClient,_bnaSettings, _slackHooksService, _logger) =
             (httpClientFactory.CreateClient(bnaClientPoliciesSettings.ClientName), bnaSettings, slackHooksService, logger);
 
         public async Task<EntityOperationResult<UsdCurrency>> GetUsdToday(DateTimeOffset? date)
         {
             // Construct URL
+            _logger.LogInformation("building url to get html data.");
             var dateUrl = date == null ? System.Web.HttpUtility.UrlEncode(
                     $"{DateTimeOffset.UtcNow.ToOffset(new TimeSpan(-3, 0, 0)):dd/MM/yyyy}") :
                 System.Web.HttpUtility.UrlEncode($"{date:dd/MM/yyyy}");
 
             var uri = new Uri(_bnaSettings.EndPoint + "&fecha=" + dateUrl);
 
-            // Create HTTP transport objects
+            _logger.LogInformation($"Building http request with url {uri}");
             var httpRequest = new HttpRequestMessage
             {
                 RequestUri = uri, 
@@ -63,16 +64,15 @@ namespace Doppler.Currency.Services
 
             if (document.GetElementsByClassName("sinResultados").Any())
             {
-                _logger.LogError("Error getting HTML, currently does not exist quotation USD.");
-                await _slackHooksService.SendNotification(_httpClient, _bnaSettings.NoQuotation);
-                result.AddError("Html Error Bna","Error getting HTML, currently does not exist quotation USD.");
+                _logger.LogInformation($"Does not exist quotation USD for date {dateTime}");
+                result.AddError("No USD for this date",_bnaSettings.NoCurrency);
                 return result;
             }
 
             var titleValidation = document.GetElementsByTagName("tr").ElementAtOrDefault(1);
             if (titleValidation == null)
             {
-                _logger.LogError($"Error getting HTML, title is not valid, please check HTML: {htmlPage}");
+                _logger.LogError(new Exception("Error getting HTML"), $"Error getting HTML, title is not valid, please check HTML: {htmlPage}");
                 await _slackHooksService.SendNotification(_httpClient);
                 result.AddError("Html Error Bna", "Error getting HTML, currently does not exist quotation USD.");
                 return result;
@@ -81,7 +81,7 @@ namespace Doppler.Currency.Services
             var titleText = titleValidation.GetElementsByTagName("td").ElementAtOrDefault(0);
             if (titleText != null && !titleText.InnerHtml.Equals(_bnaSettings.ValidationHtml))
             {
-                _logger.LogError($"Error getting HTML, currently does not exist quotation USD: {htmlPage}");
+                _logger.LogError(new Exception("Error getting HTML"), $"Error getting HTML, currently does not exist quotation USD: {htmlPage}");
                 await _slackHooksService.SendNotification(_httpClient);
                 result.AddError("Html Error Bna", "Error getting HTML, currently does not exist quotation USD.");
                 return result;
@@ -93,7 +93,7 @@ namespace Doppler.Currency.Services
 
             if (usdQuotation == null)
             {
-                _logger.LogError($"Error getting HTML, please check HTML: {htmlPage}");
+                _logger.LogError(new Exception("Error getting HTML"), $"Error getting HTML, please check HTML: {htmlPage}");
                 await _slackHooksService.SendNotification(_httpClient);
                 result.AddError("Html Error Bna", "Error getting HTML, please check HTML.");
                 return result;
@@ -114,7 +114,7 @@ namespace Doppler.Currency.Services
                 });
             }
 
-            _logger.LogError($"Error getting HTML, please check HTML: {htmlPage}");
+            _logger.LogError(new Exception("Error getting HTML"), $"Error getting HTML, please check HTML: {htmlPage}");
             await _slackHooksService.SendNotification(_httpClient);
             result.AddError("Html Error Bna", "Error getting HTML, please check HTML.");
             return result;

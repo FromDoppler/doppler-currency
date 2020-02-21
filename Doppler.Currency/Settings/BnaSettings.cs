@@ -4,6 +4,6 @@
     {
         public string EndPoint { get; set; }
         public string ValidationHtml { get; set; }
-        public string NoQuotation { get; set; }
+        public string NoCurrency { get; set; }
     }
 }
