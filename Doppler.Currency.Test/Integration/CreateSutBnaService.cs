@@ -3,7 +3,6 @@ using CrossCutting.SlackHooksService;
 using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Doppler.Currency.Test.Integration
