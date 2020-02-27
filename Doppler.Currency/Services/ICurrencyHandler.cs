@@ -5,8 +5,8 @@ using Doppler.Currency.Dtos;
 
 namespace Doppler.Currency.Services
 {
-    public interface IBnaService
+    public interface ICurrencyHandler
     {
-        public Task<EntityOperationResult<UsdCurrency>> GetUsdToday(DateTimeOffset? date);
+        Task<EntityOperationResult<UsdCurrency>> Handle(DateTime date);
     }
 }

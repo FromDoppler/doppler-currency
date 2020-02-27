@@ -17,19 +17,19 @@ namespace Doppler.Currency.Test.Integration
 
         public HttpClient Client { get; }
 
-        public Mock<IBnaService> BnaServiceMock;
+        public Mock<ICurrencyService> CurrencyServiceMock;
         public Mock<ISlackHooksService> SlackHookServiceMock;
 
         public TestServerFixture()
         {
-            BnaServiceMock = new Mock<IBnaService>();
+            CurrencyServiceMock = new Mock<ICurrencyService>();
             SlackHookServiceMock = new Mock<ISlackHooksService>();
 
             var builder = WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
                 .ConfigureTestServices(services =>
                 {
-                    services.AddSingleton(BnaServiceMock.Object);
+                    services.AddSingleton(CurrencyServiceMock.Object);
                     services.AddSingleton(SlackHookServiceMock.Object);
                 });
 

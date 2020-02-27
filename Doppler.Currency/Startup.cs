@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,13 +30,15 @@ namespace Doppler.Currency
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<UsdCurrencySettings>("BnaService", Configuration.GetSection("BnaService"));
+            services.Configure<UsdCurrencySettings>("DofService", Configuration.GetSection("DofService"));
+
             services.AddControllers();
 
             var httpClientPolicies = new HttpClientPoliciesSettings();
-            Configuration.GetSection("HttpClient:BnaClient").Bind(httpClientPolicies);
+            Configuration.GetSection("HttpClient:Client").Bind(httpClientPolicies);
             services.AddSingleton(httpClientPolicies);
 
             var handlerHttpClient = new HttpClientHandler
@@ -51,6 +54,7 @@ namespace Doppler.Currency
 
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Doppler Currency API",
@@ -59,18 +63,37 @@ namespace Doppler.Currency
                 });
             });
 
-            services.AddTransient<IBnaService, BnaService>();
+            services.AddTransient<ICurrencyService, CurrencyService>();
+
+            AddServiceSettings(services);
+
             services.AddTransient<ISlackHooksService, SlackHooksService>();
+
+            services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
+
+            services.AddTransient<DofHandler>();
+            services.AddTransient<BnaHandler>();
+            services.AddTransient<IReadOnlyDictionary<CurrencyType, ICurrencyHandler>>(sp => 
+                new Dictionary<CurrencyType, ICurrencyHandler>
+                {
+                    { CurrencyType.Arg, sp.GetRequiredService<BnaHandler>() },
+                    { CurrencyType.Mex, sp.GetRequiredService<DofHandler>() }
+                });
+        }
+
+        private void AddServiceSettings(IServiceCollection services)
+        {
+            var dofSettings = new UsdCurrencySettings();
+            Configuration.GetSection("DofService").Bind(dofSettings);
+            services.AddSingleton(dofSettings);
+
+            var bnaSettings = new UsdCurrencySettings();
+            Configuration.GetSection("BnaService").Bind(bnaSettings);
+            services.AddSingleton(bnaSettings);
 
             var slackHookSettings = new SlackHookSettings();
             Configuration.GetSection("SlackHook").Bind(slackHookSettings);
             services.AddSingleton(slackHookSettings);
-
-            var bnaSettings = new BnaSettings();
-            Configuration.GetSection("BnaService").Bind(bnaSettings);
-            services.AddSingleton(bnaSettings);
-
-            services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retry)
@@ -89,9 +112,10 @@ namespace Doppler.Currency
                 .WaitAndRetryAsync(retry, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseStaticFiles();
+
             loggerFactory.AddFile("Logs/app-{Date}.log");
 
             if (env.IsDevelopment())
@@ -110,11 +134,8 @@ namespace Doppler.Currency
                 endpoints.MapControllers();
             });
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-            // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BNA API V1");
