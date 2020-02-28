@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -75,7 +74,7 @@ namespace Doppler.Currency.Services
             {
                 _logger.LogError(new Exception("Error getting HTML"),
                     $"Error getting HTML, title is not valid, please check HTML: {htmlPage}");
-                await _slackHooksService.SendNotification(_httpClient);
+                await _slackHooksService.SendNotification(_httpClient, $"Doppler.Currency - Can't get the USD currency from ARG code country, please check Html or date is holiday {dateTime}");
                 result.AddError("Html Error Bna", "Error getting HTML, currently does not exist currency USD.");
                 return result;
             }
@@ -85,7 +84,7 @@ namespace Doppler.Currency.Services
             {
                 _logger.LogError(new Exception("Error getting HTML"),
                     $"Error getting HTML, currently does not exist currency USD: {htmlPage}");
-                await _slackHooksService.SendNotification(_httpClient);
+                await _slackHooksService.SendNotification(_httpClient, $"Doppler.Currency - Can't get the USD currency from ARG code country, please check Html and date is holiday {dateTime}");
                 result.AddError("Html Error Bna", "Error getting HTML, currently does not exist currency USD.");
                 return result;
             }
@@ -94,16 +93,10 @@ namespace Doppler.Currency.Services
 
             if (usdCurrency == null)
             {
-                usdCurrency = document.GetElementsByTagName("tr").LastOrDefault();
-
-                if (usdCurrency == null)
-                {
-                    _logger.LogError(new Exception("Error getting HTML"),
-                        $"Error getting HTML, please check HTML and date not holiday : {htmlPage}");
-                    await _slackHooksService.SendNotification(_httpClient);
-                    result.AddError("Html Error Bna", "Error getting HTML or date not holiday, please check HTML.");
-                    return result;
-                }
+                _logger.LogError(new Exception("Error getting HTML"),
+                        $"Error getting HTML, please check HTML and date is holiday : {htmlPage}");
+                result.AddError("Html Error Bna", "Error getting HTML or date is holiday, please check HTML.");
+                return result;
             }
 
             var buy = usdCurrency.GetElementsByTagName("td").ElementAtOrDefault(1);
@@ -113,10 +106,10 @@ namespace Doppler.Currency.Services
             if (buy != null && sale != null && date != null)
             {
                 _logger.LogInformation("Creating UsdCurrency object to returned to the client.");
-                var dt = DateTime.Parse(date.InnerHtml, CultureInfo.CreateSpecificCulture("es-AR"));
+
                 return new EntityOperationResult<UsdCurrency>(new UsdCurrency
                 {
-                    Date = $"{dt:dd/MM/yyyy}",
+                    Date = date.InnerHtml,
                     SaleValue = sale.InnerHtml,
                     BuyValue = buy.InnerHtml,
                     CurrencyName = _bnaSettings.CurrencyName
@@ -124,7 +117,7 @@ namespace Doppler.Currency.Services
             }
 
             _logger.LogError(new Exception("Error getting HTML"), $"Error getting HTML, please check HTML: {htmlPage}");
-            await _slackHooksService.SendNotification(_httpClient);
+            await _slackHooksService.SendNotification(_httpClient, $"Doppler.Currency - Can't get the USD currency from ARG code country, please check Html and date is holiday {dateTime}");
             result.AddError("Html Error Bna", "Error getting HTML, please check HTML.");
             return result;
         }

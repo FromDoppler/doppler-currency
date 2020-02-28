@@ -92,7 +92,7 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetUsdTodayByCountry(dateTime, "arg");
 
-            Assert.Equal($"{dateTime:dd/MM/yyyy}", result.Entity.Date);
+            Assert.Equal(dateTime.ToShortDateString(), result.Entity.Date);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetUsdTodayByCountry(dateTime, "Arg");
 
-            Assert.Equal($"{dateTime:dd/MM/yyyy}", result.Entity.Date);
+            Assert.Equal(dateTime.ToShortDateString(), result.Entity.Date);
         }
 
         [Fact]
@@ -218,9 +218,19 @@ namespace Doppler.Currency.Test
                 slackHooksServiceMock.Object,
                 Mock.Of<ILoggerAdapter<CurrencyService>>());
 
-            await service.GetUsdTodayByCountry(DateTime.Now, "Arg");
+            var result = await service.GetUsdTodayByCountry(DateTime.Now, "Arg");
 
-            slackHooksServiceMock.Verify(x => x.SendNotification(It.IsAny<HttpClient>(), It.IsAny<string>()), Times.Once);
+            slackHooksServiceMock.Verify(x => x.SendNotification(
+                It.IsAny<HttpClient>(), 
+                It.IsAny<string>()), Times.Never);
+            
+            Assert.False(result.Success);
+            Assert.Equal(1, result.Errors.Count);
+            Assert.True(result.Errors.ContainsKey("Html Error Bna"));
+
+            result.Errors.TryGetValue("Html Error Bna", out var value);
+            
+            Assert.True(result.Errors.Values.Contains(value));
         }
 
         [Fact]
@@ -323,9 +333,10 @@ namespace Doppler.Currency.Test
 
             var dateNow = DateTime.Now;
             var month = dateNow.Month.ToString("d2");
+            var day = dateNow.Day.ToString("d2");
 
             var urlCheck =
-                $"https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0&fecha={dateNow.Day}%2f{month}%2f{dateNow.Year}";
+                $"https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0&fecha={day}%2f{month}%2f{dateNow.Year}";
 
             loggerMock.Verify(x => x.LogInformation(
                 $"Building http request with url {urlCheck}"), Times.Once);

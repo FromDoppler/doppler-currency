@@ -72,9 +72,9 @@ namespace Doppler.Currency.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error getting HTML, please check HTML and date not holiday : {htmlPage}");
-                await _slackHooksService.SendNotification(_httpClient);
-                result.AddError("Html Error Dof", "Error getting HTML or date not holiday, please check HTML.");
+                _logger.LogError(e, $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
+                await _slackHooksService.SendNotification(_httpClient, "Doppler Currency Service can't get the USD currency from MEX code country, please check Html and date is holiday");
+                result.AddError("Html Error Mex currency", "Error getting HTML or date is not holiday, please check HTML.");
                 return result;
             }
         }

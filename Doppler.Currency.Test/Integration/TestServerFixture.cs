@@ -17,8 +17,8 @@ namespace Doppler.Currency.Test.Integration
 
         public HttpClient Client { get; }
 
-        public Mock<ICurrencyService> CurrencyServiceMock;
-        public Mock<ISlackHooksService> SlackHookServiceMock;
+        public Mock<ICurrencyService> CurrencyServiceMock { get; }
+        public Mock<ISlackHooksService> SlackHookServiceMock { get; }
 
         public TestServerFixture()
         {
