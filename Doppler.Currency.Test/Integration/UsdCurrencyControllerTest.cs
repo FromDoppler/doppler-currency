@@ -28,10 +28,10 @@ namespace Doppler.Currency.Test.Integration
         [InlineData("01-02-2012", "mex")]
         [InlineData("01-2-2012", "MEX")]
         [InlineData("1-02-2012", "mEx")]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeOk_WhenDateAndCountryCodeAreCorrectly(string dateTime, string countryCode)
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeOk_WhenDateAndCountryCodeAreCorrectly(string dateTime, string countryCode)
         {
             //Arrange
-            _testServer.CurrencyServiceMock.Setup(x => x.GetUsdTodayByCountry(
+            _testServer.CurrencyServiceMock.Setup(x => x.GetUsdCurrencyByCountryAndDate(
                     It.IsAny<DateTime>(),
                     It.IsAny<string>()))
                 .ReturnsAsync(new EntityOperationResult<UsdCurrency>(new UsdCurrency
@@ -56,7 +56,7 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Fact]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesNotHaveDateTime()
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesNotHaveDateTime()
         {
             // Act
             var response = await _client.GetAsync("UsdCurrency/Arg");
@@ -66,7 +66,7 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Fact]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesNotHaveCountryCode()
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesNotHaveCountryCode()
         {
             // Act
             var response = await _client.GetAsync("UsdCurrency/02-02-2020");
@@ -76,13 +76,13 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Fact]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidCountryCode()
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidCountryCode()
         {
             //Arrange
             const string countryCode = "Test";
             var result = new EntityOperationResult<UsdCurrency>();
             result.AddError("Country code invalid", $"Currency country invalid: {countryCode}");
-            _testServer.CurrencyServiceMock.Setup(x => x.GetUsdTodayByCountry(
+            _testServer.CurrencyServiceMock.Setup(x => x.GetUsdCurrencyByCountryAndDate(
                     It.IsAny<DateTime>(),
                     It.IsAny<string>()))
                 .ReturnsAsync(result);
@@ -104,7 +104,8 @@ namespace Doppler.Currency.Test.Integration
         [InlineData("12-22-2010", "MeX")]
         [InlineData("31-2-2015", "MeX")]
         [InlineData("20-20-2020", "mEx")]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidDateTime(string dateTime, string countryCode)
+        [InlineData("20-20-2160", "mEx")]
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidDateTime(string dateTime, string countryCode)
         {
             // Act
             var response = await _client.GetAsync($"UsdCurrency/{countryCode}/{dateTime}");
@@ -112,7 +113,7 @@ namespace Doppler.Currency.Test.Integration
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var text = response.Content.ReadAsStringAsync().Result;
-            Assert.Contains($"Invalid Date format {dateTime}", text);
+            Assert.Contains($"Invalid Date {dateTime}", text);
         }
 
         [Theory]
@@ -120,7 +121,7 @@ namespace Doppler.Currency.Test.Integration
         [InlineData("02\\02\\2020")]
         [InlineData("2020/02/02")]
         [InlineData("2020/02/0Z")]
-        public async Task GetUsdToday_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesHaveInDateTimeInvalidCharacter(string dateTime)
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesHaveInDateTimeInvalidCharacter(string dateTime)
         {
             // Act
             var response = await _client.GetAsync($"UsdCurrency/Arg/{dateTime}");

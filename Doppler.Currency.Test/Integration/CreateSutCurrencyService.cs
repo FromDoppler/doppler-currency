@@ -16,8 +16,8 @@ namespace Doppler.Currency.Test.Integration
             HttpClientPoliciesSettings httpClientPoliciesSettings = null,
             IOptionsMonitor<UsdCurrencySettings> bnaSettings = null,
             ISlackHooksService slackHooksService = null,
-            ILoggerAdapter<CurrencyService> logger = null,
-            ILoggerAdapter<BnaHandler> loggerBna = null,
+            ILoggerAdapter<CurrencyHandler> loggerHandler = null,
+            ILoggerAdapter<CurrencyService> loggerService = null,
             ILoggerAdapter<DofHandler> loggerDof = null)
         {
             var bnaHandler = new BnaHandler(
@@ -25,23 +25,23 @@ namespace Doppler.Currency.Test.Integration
                 httpClientPoliciesSettings,
                 bnaSettings,
                 slackHooksService,
-                loggerBna ?? Mock.Of<ILoggerAdapter<BnaHandler>>());
+                loggerHandler ?? Mock.Of<ILoggerAdapter<CurrencyHandler>>());
 
             var dofHandler = new DofHandler(
                 httpClientFactory,
                 httpClientPoliciesSettings,
                 bnaSettings,
                 slackHooksService,
-                loggerDof ?? Mock.Of<ILoggerAdapter<DofHandler>>());
+                loggerHandler ?? Mock.Of<ILoggerAdapter<CurrencyHandler>>());
 
-            var handler = new Dictionary<CurrencyType, ICurrencyHandler>
+            var handler = new Dictionary<CurrencyType, CurrencyHandler>
             {
                 { CurrencyType.Arg, bnaHandler },
                 { CurrencyType.Mex, dofHandler }
             };
 
             return new CurrencyService(
-                logger ?? Mock.Of<ILoggerAdapter<CurrencyService>>(),
+                loggerService ?? Mock.Of<ILoggerAdapter<CurrencyService>>(),
                 handler);
         }
     }

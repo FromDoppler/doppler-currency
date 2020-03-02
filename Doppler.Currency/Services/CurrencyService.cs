@@ -10,14 +10,14 @@ namespace Doppler.Currency.Services
     public class CurrencyService : ICurrencyService
     {
         private readonly ILoggerAdapter<CurrencyService> _logger;
-        private readonly IReadOnlyDictionary<CurrencyType, ICurrencyHandler> _currencyHandlers;
+        private readonly IReadOnlyDictionary<CurrencyType, CurrencyHandler> _currencyHandlers;
 
         public CurrencyService(
             ILoggerAdapter<CurrencyService> logger,
-            IReadOnlyDictionary<CurrencyType, ICurrencyHandler> currencyHandlers) =>
+            IReadOnlyDictionary<CurrencyType, CurrencyHandler> currencyHandlers) =>
             (_logger, _currencyHandlers) = (logger, currencyHandlers);
 
-        public async Task<EntityOperationResult<UsdCurrency>> GetUsdTodayByCountry(DateTime date, string countryCode)
+        public async Task<EntityOperationResult<UsdCurrency>> GetUsdCurrencyByCountryAndDate(DateTime date, string countryCode)
         {
             try
             {

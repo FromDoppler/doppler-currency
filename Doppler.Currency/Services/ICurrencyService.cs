@@ -7,6 +7,6 @@ namespace Doppler.Currency.Services
 {
     public interface ICurrencyService
     {
-        public Task<EntityOperationResult<UsdCurrency>> GetUsdTodayByCountry(DateTime date, string countryCode);
+        public Task<EntityOperationResult<UsdCurrency>> GetUsdCurrencyByCountryAndDate(DateTime date, string countryCode);
     }
 }

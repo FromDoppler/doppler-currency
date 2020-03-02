@@ -36,7 +36,8 @@ namespace Doppler.Currency
             services.Configure<UsdCurrencySettings>("BnaService", Configuration.GetSection("BnaService"));
             services.Configure<UsdCurrencySettings>("DofService", Configuration.GetSection("DofService"));
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options => { options.JsonSerializerOptions.IgnoreNullValues = true; });
 
             var httpClientPolicies = new HttpClientPoliciesSettings();
             Configuration.GetSection("HttpClient:Client").Bind(httpClientPolicies);
@@ -74,8 +75,8 @@ namespace Doppler.Currency
 
             services.AddTransient<DofHandler>();
             services.AddTransient<BnaHandler>();
-            services.AddTransient<IReadOnlyDictionary<CurrencyType, ICurrencyHandler>>(sp => 
-                new Dictionary<CurrencyType, ICurrencyHandler>
+            services.AddTransient<IReadOnlyDictionary<CurrencyType, CurrencyHandler>>(sp => 
+                new Dictionary<CurrencyType, CurrencyHandler>
                 {
                     { CurrencyType.Arg, sp.GetRequiredService<BnaHandler>() },
                     { CurrencyType.Mex, sp.GetRequiredService<DofHandler>() }

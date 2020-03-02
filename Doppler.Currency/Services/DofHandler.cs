@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AngleSharp.Html.Parser;
@@ -11,42 +12,37 @@ using Microsoft.Extensions.Options;
 
 namespace Doppler.Currency.Services
 {
-    public class DofHandler : ICurrencyHandler
+    public class DofHandler : CurrencyHandler
     {
-        private readonly HttpClient _httpClient;
-        private readonly UsdCurrencySettings _dofSettings;
-        private readonly ISlackHooksService _slackHooksService;
-        private readonly ILoggerAdapter<DofHandler> _logger;
-
         public DofHandler(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings dofClientPoliciesSettings,
             IOptionsMonitor<UsdCurrencySettings> dofSettings,
             ISlackHooksService slackHooksService,
-            ILoggerAdapter<DofHandler> logger) =>
-        (_httpClient, _dofSettings, _slackHooksService, _logger) =
-        (httpClientFactory.CreateClient(dofClientPoliciesSettings.ClientName), dofSettings.Get("DofService"), slackHooksService, logger);
+            ILoggerAdapter<CurrencyHandler> logger) : base(httpClientFactory.CreateClient(dofClientPoliciesSettings.ClientName), dofSettings.Get("DofService"),
+            slackHooksService, logger)
+        {
+        }
 
-
-        public async Task<EntityOperationResult<UsdCurrency>> Handle(DateTime date)
+        public override async Task<EntityOperationResult<UsdCurrency>> Handle(DateTime date)
         {
             // Construct URL
-            _logger.LogInformation("building url to get html data.");
+            Logger.LogInformation("building url to get html data.");
             var dateUrl = System.Web.HttpUtility.UrlEncode($"{date:dd/MM/yyyy}");
 
-            var uri = new Uri(_dofSettings.Url + "&dfecha=" + dateUrl + "&hfecha=" + dateUrl);
+            var uri = new Uri(ServiceSettings.Url + "&dfecha=" + dateUrl + "&hfecha=" + dateUrl);
 
-            _logger.LogInformation($"Building http request with url {uri}");
+            Logger.LogInformation($"Building http request with url {uri}");
             var httpRequest = new HttpRequestMessage
             {
                 RequestUri = uri,
                 Method = new HttpMethod("GET")
             };
 
-            _logger.LogInformation("Sending request to Bna server.");
-            var httpResponse = await _httpClient.SendAsync(httpRequest).ConfigureAwait(false);
+            Logger.LogInformation("Sending request to Bna server.");
+            var httpResponse = await HttpClient.SendAsync(httpRequest).ConfigureAwait(false);
 
-            _logger.LogInformation("Getting Html content of the Bna.");
+            Logger.LogInformation("Getting Html content of the Bna.");
             var htmlPage = await httpResponse.Content.ReadAsStringAsync();
 
             return await GetDataFromHtmlAsync(htmlPage);
@@ -60,23 +56,34 @@ namespace Doppler.Currency.Services
 
             try
             {
-                var table = document.GetElementsByClassName("Tabla_borde");
+                var table = document.GetElementsByClassName("Tabla_borde").FirstOrDefault();
 
-                return new EntityOperationResult<UsdCurrency>(new UsdCurrency
+                if (table != null)
                 {
-                    Date = table[0].GetElementsByTagName("td")[2].InnerHtml,
-                    SaleValue = table[0].GetElementsByTagName("td")[3].InnerHtml,
-                    BuyValue = table[0].GetElementsByTagName("td")[3].InnerHtml,
-                    CurrencyName = _dofSettings.CurrencyName
-                });
+                    var columns = table.GetElementsByTagName("td");
+                    if (columns.Any())
+                    {
+                        return new EntityOperationResult<UsdCurrency>(new UsdCurrency
+                        {
+                            Date = columns.ElementAtOrDefault(2)?.InnerHtml,
+                            SaleValue = columns.ElementAtOrDefault(3)?.InnerHtml,
+                            CurrencyName = ServiceSettings.CurrencyName
+                        });
+                    }
+                }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
-                await _slackHooksService.SendNotification(_httpClient, "Doppler Currency Service can't get the USD currency from MEX code country, please check Html and date is holiday");
+                Logger.LogError(e, $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
+                await SlackHooksService.SendNotification(HttpClient, "Can't get the USD currency from MEX code country, please check Html and date is holiday");
                 result.AddError("Html Error Mex currency", "Error getting HTML or date is not holiday, please check HTML.");
                 return result;
             }
+
+            Logger.LogError(new Exception(), $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
+            await SlackHooksService.SendNotification(HttpClient, "Can't get the USD currency from MEX code country, please check Html or date is holiday");
+            result.AddError("Html Error Mex currency", "Error getting HTML or date is not holiday, please check HTML.");
+            return result;
         }
     }
 }

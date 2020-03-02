@@ -30,12 +30,12 @@ namespace Doppler.Currency.Controllers
 
             DateTime.TryParse(date, out var dateTime);
 
-            if (dateTime.Year == 1)
+            if (dateTime.Year == 1 || dateTime.Date > DateTime.Now)
             {
-                return BadRequest($"Invalid Date format {date}");
+                return BadRequest($"Invalid Date {date}");
             }
 
-            var result = await _currencyService.GetUsdTodayByCountry(dateTime, countryCode);
+            var result = await _currencyService.GetUsdCurrencyByCountryAndDate(dateTime, countryCode);
 
             if (result.Success)
                 return Ok(result);
