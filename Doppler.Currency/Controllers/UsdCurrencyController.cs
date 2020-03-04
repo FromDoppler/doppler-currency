@@ -26,8 +26,7 @@ namespace Doppler.Currency.Controllers
             [SwaggerParameter(Description = "dd-MM-yyyy")] string date,
             [SwaggerParameter(Description = "ARG, MEX")] string countryCode)
         {
-            _logger.LogInformation("Getting Usd currency.");
-
+            _logger.LogInformation("Parsing dateTime");
             DateTime.TryParse(date, out var dateTime);
 
             if (dateTime.Year == 1 || dateTime.Date > DateTime.Now)
@@ -35,6 +34,7 @@ namespace Doppler.Currency.Controllers
                 return BadRequest($"Invalid Date {date}");
             }
 
+            _logger.LogInformation("Getting Usd currency");
             var result = await _currencyService.GetUsdCurrencyByCountryAndDate(dateTime, countryCode);
 
             if (result.Success)

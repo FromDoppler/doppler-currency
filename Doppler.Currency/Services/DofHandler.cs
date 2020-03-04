@@ -61,11 +61,11 @@ namespace Doppler.Currency.Services
                 if (table != null)
                 {
                     var columns = table.GetElementsByTagName("td");
-                    if (columns.Any())
+                    if (columns.Any() && columns.Length == 4)
                     {
                         return new EntityOperationResult<UsdCurrency>(new UsdCurrency
                         {
-                            Date = columns.ElementAtOrDefault(2)?.InnerHtml,
+                            Date = $"{columns.ElementAtOrDefault(2)?.InnerHtml}",
                             SaleValue = columns.ElementAtOrDefault(3)?.InnerHtml,
                             CurrencyName = ServiceSettings.CurrencyName
                         });

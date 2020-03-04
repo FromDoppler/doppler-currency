@@ -100,11 +100,12 @@ namespace Doppler.Currency.Test.Integration
         [InlineData("3030-1-50", "arg")]
         [InlineData("02-2019-2020", "Mex")]
         [InlineData("0202-220-2020", "mEX")]
-        [InlineData("2020-20-02","MEX")]
+        [InlineData("2020-20-02", "MEX")]
         [InlineData("12-22-2010", "MeX")]
         [InlineData("31-2-2015", "MeX")]
         [InlineData("20-20-2020", "mEx")]
         [InlineData("20-20-2160", "mEx")]
+        [InlineData("null", "mEx")]
         public async Task GetUsdCurrency_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidDateTime(string dateTime, string countryCode)
         {
             // Act
@@ -114,6 +115,20 @@ namespace Doppler.Currency.Test.Integration
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var text = response.Content.ReadAsStringAsync().Result;
             Assert.Contains($"Invalid Date {dateTime}", text);
+        }
+
+        [Theory]
+        [InlineData(null, "Arg")]
+        [InlineData(null, "mex")]
+        [InlineData("", "mEx")]
+        [InlineData(" ", "arg")]
+        public async Task GetUsdCurrency_ShouldBeHttpStatusCodeNotFound_WhenUrlDoesHaveNullAndEmptyDateTime(string dateTime, string countryCode)
+        {
+            // Act
+            var response = await _client.GetAsync($"UsdCurrency/{countryCode}/{dateTime}");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Theory]
