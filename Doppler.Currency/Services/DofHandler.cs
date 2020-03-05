@@ -45,10 +45,10 @@ namespace Doppler.Currency.Services
             Logger.LogInformation("Getting Html content of the Bna.");
             var htmlPage = await httpResponse.Content.ReadAsStringAsync();
 
-            return await GetDataFromHtmlAsync(htmlPage);
+            return await GetDataFromHtmlAsync(htmlPage, date);
         }
 
-        private async Task<EntityOperationResult<UsdCurrency>> GetDataFromHtmlAsync(string htmlPage)
+        private async Task<EntityOperationResult<UsdCurrency>> GetDataFromHtmlAsync(string htmlPage, DateTime date)
         {
             var result = new EntityOperationResult<UsdCurrency>();
             var parser = new HtmlParser();
@@ -63,26 +63,29 @@ namespace Doppler.Currency.Services
                     var columns = table.GetElementsByTagName("td");
                     if (columns.Any() && columns.Length == 4)
                     {
-                        return new EntityOperationResult<UsdCurrency>(new UsdCurrency
+                        var columnTime = $"{columns.ElementAtOrDefault(2)?.InnerHtml}";
+
+                        if (columnTime == $"{date:dd-MM-yyyy}")
                         {
-                            Date = $"{columns.ElementAtOrDefault(2)?.InnerHtml}",
-                            SaleValue = columns.ElementAtOrDefault(3)?.InnerHtml,
-                            CurrencyName = ServiceSettings.CurrencyName
-                        });
+                            return new EntityOperationResult<UsdCurrency>(new UsdCurrency
+                            {
+                                Date = columnTime,
+                                SaleValue = columns.ElementAtOrDefault(3)?.InnerHtml,
+                                CurrencyName = ServiceSettings.CurrencyName
+                            });
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError(e, $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
-                await SlackHooksService.SendNotification(HttpClient, "Can't get the USD currency from MEX code country, please check Html and date is holiday");
-                result.AddError("Html Error Mex currency", "Error getting HTML or date is not holiday, please check HTML.");
+                await SendSlackNotification(htmlPage, date, CurrencyType.Mex, e);
+                result.AddError("Html Error Mex currency", "Error getting HTML or date is holiday, please check HTML.");
                 return result;
             }
 
-            Logger.LogError(new Exception(), $"Error getting Mex currency, please check HTML or date is not holiday : {htmlPage}");
-            await SlackHooksService.SendNotification(HttpClient, "Can't get the USD currency from MEX code country, please check Html or date is holiday");
-            result.AddError("Html Error Mex currency", "Error getting HTML or date is not holiday, please check HTML.");
+            await SendSlackNotification(htmlPage, date, CurrencyType.Mex);
+            result.AddError("Html Error Mex currency", "Error getting HTML or date is holiday, please check HTML.");
             return result;
         }
     }

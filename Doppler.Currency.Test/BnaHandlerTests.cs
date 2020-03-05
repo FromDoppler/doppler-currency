@@ -290,6 +290,8 @@ namespace Doppler.Currency.Test
         [Fact]
         public async Task GetUsdCurrency_ShouldBeLoginInformationWithUrl_WhenCallBnaServiceOk()
         {
+            var dateTime = DateTime.UtcNow;
+
             _httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
@@ -334,12 +336,11 @@ namespace Doppler.Currency.Test
 
             Assert.False(result.Success);
 
-            var dateNow = DateTime.Now;
-            var month = dateNow.Month.ToString("d2");
-            var day = dateNow.Day.ToString("d2");
+            var month = dateTime.Month.ToString("d2");
+            var day = dateTime.Day.ToString("d2");
 
             var urlCheck =
-                $"https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0&fecha={day}%2f{month}%2f{dateNow.Year}";
+                $"https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0&fecha={day}%2f{month}%2f{dateTime.Year}";
 
             loggerMock.Verify(x => x.LogInformation(
                 $"Building http request with url {urlCheck}"), Times.Once);

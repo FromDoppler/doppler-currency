@@ -29,5 +29,16 @@ namespace Doppler.Currency.Services
         }
 
         public abstract Task<EntityOperationResult<UsdCurrency>> Handle(DateTime date);
+
+        protected async Task SendSlackNotification(
+            string htmlPage,
+            DateTime dateTime,
+            CurrencyType countryCode,
+            Exception e = null)
+        {
+            Logger.LogError(e ?? new Exception("Error getting HTML"),
+                $"Error getting HTML, title is not valid, please check HTML: {htmlPage}");
+            await SlackHooksService.SendNotification(HttpClient, $"Can't get the USD currency from {countryCode} code country, please check Html in the log or if the date is holiday {dateTime}");
+        }
     }
 }
