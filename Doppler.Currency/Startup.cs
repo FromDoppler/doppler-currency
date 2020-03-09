@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using CrossCutting;
 using CrossCutting.SlackHooksService;
+using Doppler.Currency.Enums;
 using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
@@ -33,8 +34,8 @@ namespace Doppler.Currency
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<UsdCurrencySettings>("BnaService", Configuration.GetSection("BnaService"));
-            services.Configure<UsdCurrencySettings>("DofService", Configuration.GetSection("DofService"));
+            services.Configure<CurrencySettings>("BnaService", Configuration.GetSection("CurrencyCode:BnaService"));
+            services.Configure<CurrencySettings>("DofService", Configuration.GetSection("CurrencyCode:DofService"));
 
             services.AddControllers()
                 .AddJsonOptions(options => { options.JsonSerializerOptions.IgnoreNullValues = true; });
@@ -75,22 +76,22 @@ namespace Doppler.Currency
 
             services.AddTransient<DofHandler>();
             services.AddTransient<BnaHandler>();
-            services.AddTransient<IReadOnlyDictionary<CurrencyType, CurrencyHandler>>(sp => 
-                new Dictionary<CurrencyType, CurrencyHandler>
+            services.AddTransient<IReadOnlyDictionary<CurrencyCodeEnum, CurrencyHandler>>(sp => 
+                new Dictionary<CurrencyCodeEnum, CurrencyHandler>
                 {
-                    { CurrencyType.Arg, sp.GetRequiredService<BnaHandler>() },
-                    { CurrencyType.Mex, sp.GetRequiredService<DofHandler>() }
+                    { CurrencyCodeEnum.Ars, sp.GetRequiredService<BnaHandler>() },
+                    { CurrencyCodeEnum.Mxn, sp.GetRequiredService<DofHandler>() }
                 });
         }
 
         private void AddServiceSettings(IServiceCollection services)
         {
-            var dofSettings = new UsdCurrencySettings();
-            Configuration.GetSection("DofService").Bind(dofSettings);
+            var dofSettings = new CurrencySettings();
+            Configuration.GetSection("CurrencyCode:DofService").Bind(dofSettings);
             services.AddSingleton(dofSettings);
 
-            var bnaSettings = new UsdCurrencySettings();
-            Configuration.GetSection("BnaService").Bind(bnaSettings);
+            var bnaSettings = new CurrencySettings();
+            Configuration.GetSection("CurrencyCode:BnaService").Bind(bnaSettings);
             services.AddSingleton(bnaSettings);
 
             var slackHookSettings = new SlackHookSettings();
@@ -144,7 +145,7 @@ namespace Doppler.Currency
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BNA API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Doppler Currency API V1");
             });
         }
     }

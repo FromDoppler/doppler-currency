@@ -1,6 +1,6 @@
 ﻿namespace Doppler.Currency.Settings
 {
-    public class UsdCurrencySettings
+    public class CurrencySettings
     {
         public string Url { get; set; }
         public string ValidationHtml { get; set; }

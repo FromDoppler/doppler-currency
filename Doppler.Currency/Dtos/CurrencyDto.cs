@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Doppler.Currency.Dtos
 {
-    public class UsdCurrency
+    public class CurrencyDto
     {
         public string Date { get; set; }
         public string SaleValue { get; set; }
