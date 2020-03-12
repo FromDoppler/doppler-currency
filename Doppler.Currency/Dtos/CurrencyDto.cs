@@ -1,10 +1,12 @@
+using System;
 using Newtonsoft.Json;
 
 namespace Doppler.Currency.Dtos
 {
     public class CurrencyDto
     {
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
+
         public string SaleValue { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

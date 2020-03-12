@@ -42,11 +42,11 @@ namespace Doppler.Currency.Services
             await SlackHooksService.SendNotification(HttpClient, $"Can't get the USD currency from {countryCode} code country, please check Html in the log or if the date is holiday {dateTime}");
         }
 
-        protected EntityOperationResult<CurrencyDto> CreateCurrency(string date, string sale, string buy = null)
+        protected EntityOperationResult<CurrencyDto> CreateCurrency(DateTime date, string sale, string buy = null)
         {
             return new EntityOperationResult<CurrencyDto>(new CurrencyDto
             {
-                Date = date,
+                Date = date.ToUniversalTime(),
                 SaleValue = sale,
                 BuyValue = buy,
                 CurrencyName = ServiceSettings.CurrencyName

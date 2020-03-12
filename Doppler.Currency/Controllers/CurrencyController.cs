@@ -24,19 +24,18 @@ namespace Doppler.Currency.Controllers
         [SwaggerResponse(200, "The currency is ok", typeof(CurrencyDto))]
         [SwaggerResponse(400, "The currency data is invalid")]
         public async Task<IActionResult> Get(
-            [SwaggerParameter(Description = "dd-MM-yyyy")] string date,
-            [SwaggerParameter(Description = "ARS, MXN")] CurrencyCodeEnum currencyCode)
+            [SwaggerParameter(Description = "yyyy-MM-dd")] DateTime date,
+            [SwaggerParameter(Description = "ARS=1, MXN=2")] CurrencyCodeEnum currencyCode)
         {
             _logger.LogInformation("Parsing dateTime");
-            DateTime.TryParse(date, out var dateTime);
 
-            if (dateTime.Year == 1 || dateTime.Date > DateTime.Now)
+            if (date.Year == 1 || date.Date > DateTime.Now)
             {
                 return BadRequest($"Invalid Date {date}");
             }
 
             _logger.LogInformation("Getting Usd currency");
-            var result = await _currencyService.GetCurrencyByCurrencyCodeAndDate(dateTime, currencyCode);
+            var result = await _currencyService.GetCurrencyByCurrencyCodeAndDate(date, currencyCode);
 
             if (result.Success)
                 return Ok(result);

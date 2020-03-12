@@ -69,7 +69,7 @@ namespace Doppler.Currency.Services
                         if (columnTime == $"{date:dd-MM-yyyy}")
                         {
                             var saleValue = columns.ElementAtOrDefault(3)?.InnerHtml.Replace(".", ",");
-                            return CreateCurrency($"{date:yyyy/MM/dd}", saleValue);
+                            return CreateCurrency(date, saleValue);
                         }
                     }
                 }

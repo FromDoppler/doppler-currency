@@ -93,7 +93,7 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
-            Assert.Equal($"{dateTime:yyyy/MM/dd}", result.Entity.Date);
+            Assert.Equal(dateTime.ToUniversalTime(), result.Entity.Date);
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace Doppler.Currency.Test
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent($@"<div id='cotizacionesCercanas'>
+                    Content = new StringContent(@"<div id='cotizacionesCercanas'>
                     <table class='table table-bordered cotizador' style='float:none; width:100%; text-align: center;'>
                     <thead>
                     <tr>
@@ -143,7 +143,7 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
-            Assert.Equal($"{dateTime:yyyy/MM/dd}", result.Entity.Date);
+            Assert.Equal(dateTime.ToUniversalTime(), result.Entity.Date);
         }
 
         [Fact]

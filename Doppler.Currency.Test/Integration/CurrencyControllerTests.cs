@@ -7,7 +7,6 @@ using Moq;
 using Xunit;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Services;
 
 namespace Doppler.Currency.Test.Integration
 {
@@ -23,13 +22,12 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Theory]
-        [InlineData("21-12-2012", "Ars")]
         [InlineData("1-12-2012", "ARS")]
         [InlineData("1-2-2012", "ars")]
-        [InlineData("21-2-2012","Mxn")]
         [InlineData("01-02-2012", "mxn")]
         [InlineData("01-2-2012", "MXN")]
         [InlineData("1-02-2012", "mXn")]
+        [InlineData("12-22-2010", "mxn")]
         public async Task GetCurrency_ShouldBeHttpStatusCodeOk_WhenDateAndCurrencyCodeAreCorrectly(string dateTime, string currencyCode)
         {
             //Arrange
@@ -40,7 +38,7 @@ namespace Doppler.Currency.Test.Integration
                 {
                     BuyValue = "10",
                     SaleValue = "30",
-                    Date = dateTime
+                    Date = DateTime.Parse(dateTime).ToUniversalTime()
                 }));
 
             // Act
@@ -52,7 +50,10 @@ namespace Doppler.Currency.Test.Integration
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotEmpty(responseString);
-            Assert.Contains(dateTime, responseString);
+
+            var dateString = DateTime.Parse(dateTime).ToUniversalTime();
+
+            Assert.Contains($"{dateString:yyyy-MM-dd}", responseString);
             Assert.Contains("30", responseString);
             Assert.Contains("10", responseString);
         }
@@ -103,11 +104,12 @@ namespace Doppler.Currency.Test.Integration
         [InlineData("02-2019-2020", "Mxn")]
         [InlineData("0202-220-2020", "mXN")]
         [InlineData("2020-20-02", "MXN")]
-        [InlineData("12-22-2010", "MXn")]
         [InlineData("31-2-2015", "MxN")]
         [InlineData("20-20-2020", "mXn")]
         [InlineData("20-20-2160", "mXn")]
         [InlineData("null", "mXn")]
+        [InlineData("21-12-2012", "Ars")]
+        [InlineData("21-2-2012", "Mxn")]
         public async Task GetCurrency_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidDateTime(string dateTime, string currencyCode)
         {
             // Act
@@ -115,8 +117,8 @@ namespace Doppler.Currency.Test.Integration
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            var text = response.Content.ReadAsStringAsync().Result;
-            Assert.Contains($"Invalid Date {dateTime}", text);
+            var text = await response.Content.ReadAsStringAsync();
+            Assert.Contains($"The value '{dateTime}' is not valid", text);
         }
 
         [Theory]
