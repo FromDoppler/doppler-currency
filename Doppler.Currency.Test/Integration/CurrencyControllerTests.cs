@@ -36,8 +36,8 @@ namespace Doppler.Currency.Test.Integration
                     It.IsAny<CurrencyCodeEnum>()))
                 .ReturnsAsync(new EntityOperationResult<CurrencyDto>(new CurrencyDto
                 {
-                    BuyValue = "10",
-                    SaleValue = "30",
+                    BuyValue = 10.3434M,
+                    SaleValue = 30.34M,
                     Date = DateTime.Parse(dateTime).ToUniversalTime()
                 }));
 
@@ -54,8 +54,8 @@ namespace Doppler.Currency.Test.Integration
             var dateString = DateTime.Parse(dateTime).ToUniversalTime();
 
             Assert.Contains($"{dateString:yyyy-MM-dd}", responseString);
-            Assert.Contains("30", responseString);
-            Assert.Contains("10", responseString);
+            Assert.Contains("30.34", responseString);
+            Assert.Contains("10.3434", responseString);
         }
 
         [Fact]

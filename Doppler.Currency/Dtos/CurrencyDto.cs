@@ -7,10 +7,10 @@ namespace Doppler.Currency.Dtos
     {
         public DateTime Date { get; set; }
 
-        public string SaleValue { get; set; }
+        public decimal SaleValue { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string BuyValue { get; set; }
+        public decimal? BuyValue { get; set; }
         public string CurrencyName { get; set; } 
     }
 }

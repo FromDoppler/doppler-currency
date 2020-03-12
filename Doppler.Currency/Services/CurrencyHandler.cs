@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CrossCutting;
@@ -44,11 +45,15 @@ namespace Doppler.Currency.Services
 
         protected EntityOperationResult<CurrencyDto> CreateCurrency(DateTime date, string sale, string buy = null)
         {
+            var cultureInfo = CultureInfo.CreateSpecificCulture("es-AR");
+            var saleDecimal = Convert.ToDecimal(sale, cultureInfo);
+            var buyDecimal = Convert.ToDecimal(buy, cultureInfo);
+
             return new EntityOperationResult<CurrencyDto>(new CurrencyDto
             {
                 Date = date.ToUniversalTime(),
-                SaleValue = sale,
-                BuyValue = buy,
+                SaleValue = saleDecimal,
+                BuyValue = buyDecimal == 0 ? (decimal?) null : buyDecimal,
                 CurrencyName = ServiceSettings.CurrencyName
             });
         }
