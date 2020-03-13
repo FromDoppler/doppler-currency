@@ -38,7 +38,7 @@ namespace Doppler.Currency.Test.Integration
                 {
                     BuyValue = 10.3434M,
                     SaleValue = 30.34M,
-                    Date = DateTime.Parse(dateTime).ToUniversalTime()
+                    Date = $"{DateTime.Parse(dateTime):yyyy-MM-dd}"
                 }));
 
             // Act

@@ -41,7 +41,7 @@ namespace Doppler.Currency.Test
         }
 
         [Fact]
-        public async Task GetCurrency_ShouldBeReturnUsdCurrencyOfBna_WhenHtmlHaveTwoCurrencyToReturnOk()
+        public async Task GetCurrency_ShouldBeReturnCurrencyOk_WhenHtmlHaveTwoCurrency()
         {
             var dateTime = new DateTime(2020, 02, 05);
 
@@ -93,11 +93,11 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
-            Assert.Equal(dateTime.ToUniversalTime(), result.Entity.Date);
+            Assert.Equal("2020-02-05", result.Entity.Date);
         }
 
         [Fact]
-        public async Task GetCurrency_ShouldBeReturnCurrencyOfBna_WhenHtmlHaveOneCurrencyToReturnOk()
+        public async Task GetCurrency_ShouldBeReturnCurrencyOk_WhenHtmlHaveOneCurrency()
         {
             var dateTime = new DateTime(2020, 02, 04);
 
@@ -143,7 +143,7 @@ namespace Doppler.Currency.Test
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
-            Assert.Equal(dateTime.ToUniversalTime(), result.Entity.Date);
+            Assert.Equal("2020-02-04", result.Entity.Date);
         }
 
         [Fact]

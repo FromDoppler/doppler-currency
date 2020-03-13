@@ -5,7 +5,7 @@ namespace Doppler.Currency.Dtos
 {
     public class CurrencyDto
     {
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public decimal SaleValue { get; set; }
 

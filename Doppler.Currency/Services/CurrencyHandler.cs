@@ -51,7 +51,7 @@ namespace Doppler.Currency.Services
 
             return new EntityOperationResult<CurrencyDto>(new CurrencyDto
             {
-                Date = date.ToUniversalTime(),
+                Date = $"{date.ToUniversalTime():yyyy-MM-dd}",
                 SaleValue = saleDecimal,
                 BuyValue = buyDecimal == 0 ? (decimal?) null : buyDecimal,
                 CurrencyName = ServiceSettings.CurrencyName
