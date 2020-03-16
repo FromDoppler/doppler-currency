@@ -22,12 +22,10 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Theory]
-        [InlineData("1-12-2012", "ARS")]
-        [InlineData("1-2-2012", "ars")]
+        [InlineData("1-2-2012", "ARS")]
         [InlineData("01-02-2012", "mxn")]
         [InlineData("01-2-2012", "MXN")]
         [InlineData("1-02-2012", "mXn")]
-        [InlineData("12-22-2010", "mxn")]
         public async Task GetCurrency_ShouldBeHttpStatusCodeOk_WhenDateAndCurrencyCodeAreCorrectly(string dateTime, string currencyCode)
         {
             //Arrange
@@ -50,10 +48,7 @@ namespace Doppler.Currency.Test.Integration
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotEmpty(responseString);
-
-            var dateString = DateTime.Parse(dateTime).ToUniversalTime();
-
-            Assert.Contains($"{dateString:yyyy-MM-dd}", responseString);
+            Assert.Contains("2012-01-02", responseString);
             Assert.Contains("30.34", responseString);
             Assert.Contains("10.3434", responseString);
         }
