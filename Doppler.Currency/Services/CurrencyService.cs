@@ -33,8 +33,8 @@ namespace Doppler.Currency.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e,"Invalid currency code.");
-                result.AddError("Currency code invalid", $"Currency code invalid: {currencyCode}.");
+                _logger.LogError(e,"Error to get currency.");
+                result.AddError("Error to get currency", $"Please see log, currency code : {currencyCode} and date {date}.");
                 return result;
             }
 

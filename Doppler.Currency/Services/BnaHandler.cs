@@ -68,7 +68,7 @@ namespace Doppler.Currency.Services
             if (titleValidation == null)
             {
                 await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
-                result.AddError("Html Error Bna", $"Error getting HTML, currently does not exist currency USD. Check Date {date.ToShortDateString()}.");
+                result.AddError("Html Error Bna", $"Error getting HTML, not exist currency USD. Check Date {date.ToUniversalTime().ToShortDateString()}.");
                 return result;
             }
 
@@ -76,7 +76,7 @@ namespace Doppler.Currency.Services
             if (titleText != null && !titleText.InnerHtml.Equals(ServiceSettings.ValidationHtml))
             {
                 await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
-                result.AddError("Html Error Bna", $"Error getting HTML, currently does not exist currency USD. Check date {date.ToShortDateString()}.");
+                result.AddError("Html Error Bna", $"Error getting HTML, not exist currency USD. Check date {date.ToUniversalTime().ToShortDateString()}.");
                 return result;
             }
 

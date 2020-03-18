@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -52,7 +51,7 @@ namespace Doppler.Currency
 
             services.AddHttpClient(httpClientPolicies.ClientName, c => { })
                 .ConfigurePrimaryHttpMessageHandler(() => handlerHttpClient)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .SetHandlerLifetime(TimeSpan.FromMinutes(2))
                 .AddPolicyHandler(GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
             services.AddSwaggerGen(c =>
