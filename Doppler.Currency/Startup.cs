@@ -7,7 +7,6 @@ using System.Security.Authentication;
 using CrossCutting;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
 using Microsoft.AspNetCore.Builder;
@@ -70,8 +69,6 @@ namespace Doppler.Currency
             AddServiceSettings(services);
 
             services.AddTransient<ISlackHooksService, SlackHooksService>();
-
-            services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 
             services.AddTransient<DofHandler>();
             services.AddTransient<BnaHandler>();

@@ -6,8 +6,8 @@ using CrossCutting;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Settings;
+using Microsoft.Extensions.Logging;
 
 namespace Doppler.Currency.Services
 {
@@ -16,13 +16,13 @@ namespace Doppler.Currency.Services
         protected readonly HttpClient HttpClient;
         protected readonly CurrencySettings ServiceSettings;
         protected readonly ISlackHooksService SlackHooksService;
-        protected readonly ILoggerAdapter<CurrencyHandler> Logger;
+        protected readonly ILogger<CurrencyHandler> Logger;
 
         protected CurrencyHandler(
             HttpClient httpClient,
             CurrencySettings serviceSettings,
             ISlackHooksService slackHooksService, 
-            ILoggerAdapter<CurrencyHandler> logger)
+            ILogger<CurrencyHandler> logger)
         {
             HttpClient = httpClient;
             ServiceSettings = serviceSettings;

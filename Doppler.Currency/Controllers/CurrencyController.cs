@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Doppler.Currency.Controllers
@@ -13,10 +13,10 @@ namespace Doppler.Currency.Controllers
     [Route("[controller]")]
     public class CurrencyController : ControllerBase
     {
-        private readonly ILoggerAdapter<CurrencyController> _logger;
+        private readonly ILogger<CurrencyController> _logger;
         private readonly ICurrencyService _currencyService;
 
-        public CurrencyController(ILoggerAdapter<CurrencyController> logger, ICurrencyService currencyService) => 
+        public CurrencyController(ILogger<CurrencyController> logger, ICurrencyService currencyService) => 
             (_logger, _currencyService) = (logger, currencyService);
 
         [HttpGet("{currencyCode}/{date}")]

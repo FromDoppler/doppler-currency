@@ -7,8 +7,8 @@ using CrossCutting;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Settings;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Doppler.Currency.Services
@@ -20,7 +20,7 @@ namespace Doppler.Currency.Services
             HttpClientPoliciesSettings dofClientPoliciesSettings,
             IOptionsMonitor<CurrencySettings> dofSettings,
             ISlackHooksService slackHooksService,
-            ILoggerAdapter<CurrencyHandler> logger) : base(httpClientFactory.CreateClient(dofClientPoliciesSettings.ClientName), dofSettings.Get("DofService"),
+            ILogger<CurrencyHandler> logger) : base(httpClientFactory.CreateClient(dofClientPoliciesSettings.ClientName), dofSettings.Get("DofService"),
             slackHooksService, logger)
         {
         }

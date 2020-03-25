@@ -4,17 +4,17 @@ using System.Threading.Tasks;
 using CrossCutting;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
+using Microsoft.Extensions.Logging;
 
 namespace Doppler.Currency.Services
 {
     public class CurrencyService : ICurrencyService
     {
-        private readonly ILoggerAdapter<CurrencyService> _logger;
+        private readonly ILogger<CurrencyService> _logger;
         private readonly IReadOnlyDictionary<CurrencyCodeEnum, CurrencyHandler> _currencyHandlers;
 
         public CurrencyService(
-            ILoggerAdapter<CurrencyService> logger,
+            ILogger<CurrencyService> logger,
             IReadOnlyDictionary<CurrencyCodeEnum, CurrencyHandler> currencyHandlers) =>
             (_logger, _currencyHandlers) = (logger, currencyHandlers);
 
@@ -34,7 +34,7 @@ namespace Doppler.Currency.Services
             catch (Exception e)
             {
                 _logger.LogError(e,"Error to get currency.");
-                result.AddError("Error to get currency", $"Please see log, currency code : {currencyCode} and date {date}.");
+                result.AddError("Error to get currency", $"Please see log, currency code : {currencyCode} and date  {date}.");
                 return result;
             }
 

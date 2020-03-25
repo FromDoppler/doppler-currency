@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
 using Doppler.Currency.Test.Integration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -65,7 +65,7 @@ namespace Doppler.Currency.Test
                 },
                 _mockUsdCurrencySettings.Object,
                 Mock.Of<ISlackHooksService>(),
-                Mock.Of<ILoggerAdapter<CurrencyHandler>>());
+                Mock.Of<ILogger<CurrencyHandler>>());
 
             Enum.TryParse(typeof(CurrencyCodeEnum), currencyCode, true, out var parseResult);
 

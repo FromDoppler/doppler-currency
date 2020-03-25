@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Enums;
-using Doppler.Currency.Logger;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
 using Doppler.Currency.Test.Integration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -76,7 +76,7 @@ namespace Doppler.Currency.Test
                 },
                 _mockUsdCurrencySettings.Object,
                 Mock.Of<ISlackHooksService>(),
-                Mock.Of<ILoggerAdapter<CurrencyHandler>>());
+                Mock.Of<ILogger<CurrencyHandler>>());
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Mxn);
             
@@ -126,7 +126,7 @@ namespace Doppler.Currency.Test
                 },
                 _mockUsdCurrencySettings.Object,
                 slackHooksServiceMock.Object,
-                Mock.Of<ILoggerAdapter<CurrencyHandler>>());
+                Mock.Of<ILogger<CurrencyHandler>>());
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(DateTime.Now, CurrencyCodeEnum.Mxn);
 
@@ -175,7 +175,7 @@ namespace Doppler.Currency.Test
                 },
                 _mockUsdCurrencySettings.Object,
                 slackHooksServiceMock.Object,
-                Mock.Of<ILoggerAdapter<CurrencyHandler>>());
+                Mock.Of<ILogger<CurrencyHandler>>());
 
             var result = await service.GetCurrencyByCurrencyCodeAndDate(DateTime.Now, CurrencyCodeEnum.Mxn);
 
@@ -226,7 +226,7 @@ namespace Doppler.Currency.Test
             slackHooksServiceMock.Setup(x => x.SendNotification(It.IsAny<HttpClient>(), It.IsAny<string>()))
                 .Verifiable();
 
-            var loggerMock = new Mock<ILoggerAdapter<CurrencyHandler>>();
+            var loggerMock = new Mock<ILogger<CurrencyHandler>>();
 
             var service = CreateSutCurrencyService.CreateSut(
                 _httpClientFactoryMock.Object,
@@ -247,9 +247,15 @@ namespace Doppler.Currency.Test
 
             var urlCheck =
                 $"http://www.dof.gob.mx/indicadores_detalle.php?cod_tipo_indicador=158&dfecha={day}%2f{month}%2f{dateTime.Year}&hfecha={day}%2f{month}%2f{dateTime.Year}";
-            
-            loggerMock.Verify(x => x.LogInformation(
-                $"Building http request with url {urlCheck}"), Times.Once);
+
+            loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals($"Building http request with url {urlCheck}")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Once);
         }
     }
 }
