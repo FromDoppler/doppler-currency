@@ -43,7 +43,11 @@ namespace Doppler.Currency.Services
             await SlackHooksService.SendNotification(HttpClient, $"Can't get currency from {currencyCode} currency code, please check Html in the log or if the date is holiday {dateTime.ToUniversalTime():yyyy-MM-dd}");
         }
 
-        protected EntityOperationResult<CurrencyDto> CreateCurrency(DateTime date, string sale, string buy = null)
+        protected EntityOperationResult<CurrencyDto> CreateCurrency(
+            DateTime date,
+            string sale,
+            CurrencyCodeEnum currencyCode,
+            string buy = null)
         {
             var cultureInfo = CultureInfo.CreateSpecificCulture("es-AR");
             var saleDecimal = Convert.ToDecimal(sale, cultureInfo);
@@ -54,7 +58,8 @@ namespace Doppler.Currency.Services
                 Date = $"{date.ToUniversalTime():yyyy-MM-dd}",
                 SaleValue = saleDecimal,
                 BuyValue = buyDecimal == 0 ? (decimal?) null : buyDecimal,
-                CurrencyName = ServiceSettings.CurrencyName
+                CurrencyName = ServiceSettings.CurrencyName,
+                CurrencyCode = currencyCode.ToString()
             });
         }
     }
