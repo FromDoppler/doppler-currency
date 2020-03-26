@@ -7,6 +7,7 @@ using CrossCutting.SlackHooksService;
 using Doppler.Currency.Enums;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
+using Doppler.Currency.Test.Helper;
 using Doppler.Currency.Test.Integration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -248,14 +249,7 @@ namespace Doppler.Currency.Test
             var urlCheck =
                 $"http://www.dof.gob.mx/indicadores_detalle.php?cod_tipo_indicador=158&dfecha={day}%2f{month}%2f{dateTime.Year}&hfecha={day}%2f{month}%2f{dateTime.Year}";
 
-            loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals($"Building http request with url {urlCheck}")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Once);
+            loggerMock.VerifyLogger(LogLevel.Information, $"Building http request with url {urlCheck}", Times.Once());
         }
     }
 }
