@@ -6,5 +6,6 @@
         public string ValidationHtml { get; set; }
         public string NoCurrency { get; set; }
         public string CurrencyName { get; set; }
+        public string CurrencyCode { get; set; }
     }
 }

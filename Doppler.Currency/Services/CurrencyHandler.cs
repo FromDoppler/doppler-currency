@@ -46,7 +46,7 @@ namespace Doppler.Currency.Services
         protected EntityOperationResult<CurrencyDto> CreateCurrency(
             DateTime date,
             string sale,
-            CurrencyCodeEnum currencyCode,
+            string currencyCode,
             string buy = null)
         {
             var cultureInfo = CultureInfo.CreateSpecificCulture("es-AR");
@@ -59,7 +59,7 @@ namespace Doppler.Currency.Services
                 SaleValue = saleDecimal,
                 BuyValue = buyDecimal == 0 ? (decimal?) null : buyDecimal,
                 CurrencyName = ServiceSettings.CurrencyName,
-                CurrencyCode = currencyCode.ToString()
+                CurrencyCode = currencyCode.ToUpper()
             });
         }
     }

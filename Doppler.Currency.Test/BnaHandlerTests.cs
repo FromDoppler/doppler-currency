@@ -32,8 +32,9 @@ namespace Doppler.Currency.Test
                 {
                     Url = "https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0",
                     NoCurrency = "",
-                    CurrencyName = "",
-                    ValidationHtml = "Dolar U.S.A"
+                    CurrencyName = "Peso Argentino",
+                    ValidationHtml = "Dolar U.S.A",
+                    CurrencyCode = "ARS",
                 });
 
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
@@ -95,6 +96,10 @@ namespace Doppler.Currency.Test
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
             Assert.Equal("2020-02-05", result.Entity.Date);
+            Assert.Equal(58.0000M, result.Entity.BuyValue);
+            Assert.Equal(63.0000M, result.Entity.SaleValue);
+            Assert.Equal("Peso Argentino", result.Entity.CurrencyName);
+            Assert.Equal("ARS", result.Entity.CurrencyCode);
         }
 
         [Fact]

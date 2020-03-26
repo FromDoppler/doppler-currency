@@ -23,14 +23,15 @@ namespace Doppler.Currency.Test.Integration
         }
 
         [Theory]
-        [InlineData("1-2-2012", "ARS", "Peso Argentino")]
-        [InlineData("01-02-2012", "mxn", "Peso Mexicano")]
-        [InlineData("01-2-2012", "MXN", "Peso Mexicano")]
-        [InlineData("1-02-2012", "mXn", "Peso Mexicano")]
+        [InlineData("1-2-2012", "ArS", "Peso Argentino", "ARS")]
+        [InlineData("01-02-2012", "mxn", "Peso Mexicano", "MXN")]
+        [InlineData("01-2-2012", "MXN", "Peso Mexicano", "MXN")]
+        [InlineData("1-02-2012", "mXn", "Peso Mexicano", "MXM")]
         public async Task GetCurrency_ShouldBeHttpStatusCodeOk_WhenDateAndCurrencyCodeAreCorrectly(
             string dateTime, 
             string currencyCode,
-            string currencyName)
+            string currencyName,
+            string expectedCurrencyCode)
         {
             //Arrange
             _testServer.CurrencyServiceMock.Setup(x => x.GetCurrencyByCurrencyCodeAndDate(
@@ -41,7 +42,7 @@ namespace Doppler.Currency.Test.Integration
                     BuyValue = 10.3434M,
                     SaleValue = 30.34M,
                     Date = $"{DateTime.Parse(dateTime):yyyy-MM-dd}",
-                    CurrencyCode = currencyCode,
+                    CurrencyCode = expectedCurrencyCode,
                     CurrencyName = currencyName
                 }));
 
@@ -58,7 +59,7 @@ namespace Doppler.Currency.Test.Integration
             Assert.Equal("2012-01-02", result.Entity.Date);
             Assert.Equal(30.34M, result.Entity.SaleValue);
             Assert.Equal(10.3434M, result.Entity.BuyValue);
-            Assert.Equal(currencyCode, result.Entity.CurrencyCode);
+            Assert.Equal(expectedCurrencyCode, result.Entity.CurrencyCode);
             Assert.Equal(currencyName, result.Entity.CurrencyName);
         }
 

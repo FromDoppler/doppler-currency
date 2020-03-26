@@ -32,8 +32,9 @@ namespace Doppler.Currency.Test
                 {
                     Url = "http://www.dof.gob.mx/indicadores_detalle.php?cod_tipo_indicador=158",
                     NoCurrency = "",
-                    CurrencyName = "",
-                    ValidationHtml = "Dolar U.S.A"
+                    CurrencyName = "Peso Mexicano",
+                    ValidationHtml = "Dolar U.S.A",
+                    CurrencyCode = "MXN"
                 });
 
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
@@ -82,6 +83,9 @@ namespace Doppler.Currency.Test
             var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Mxn);
             
             Assert.Equal("2020-02-05", result.Entity.Date);
+            Assert.Equal(18.679700M, result.Entity.SaleValue);
+            Assert.Equal("Peso Mexicano", result.Entity.CurrencyName);
+            Assert.Equal("MXN", result.Entity.CurrencyCode);
         }
 
         [Fact]

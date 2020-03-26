@@ -34,7 +34,8 @@ namespace Doppler.Currency.Test
                     Url = "https://bna.com.ar/Cotizador/HistoricoPrincipales?id=billetes&filtroDolar=1&filtroEuro=0",
                     NoCurrency = "",
                     CurrencyName = "",
-                    ValidationHtml = "Dolar U.S.A"
+                    ValidationHtml = "Dolar U.S.A",
+                    CurrencyCode = "ARS"
                 });
 
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();

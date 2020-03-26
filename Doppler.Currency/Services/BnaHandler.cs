@@ -100,7 +100,7 @@ namespace Doppler.Currency.Services
             {
                 Logger.LogInformation("Creating Currency object to returned to the client.");
                 
-                return CreateCurrency(date, saleColumn.InnerHtml, CurrencyCodeEnum.Ars, buyColumn.InnerHtml);
+                return CreateCurrency(date, saleColumn.InnerHtml, ServiceSettings.CurrencyCode, buyColumn.InnerHtml);
             }
 
             await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
