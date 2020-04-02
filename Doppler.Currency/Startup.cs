@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Polly;
 using Polly.Extensions.Http;
+using Serilog;
 
 namespace Doppler.Currency
 {
@@ -115,7 +116,13 @@ namespace Doppler.Currency
         {
             app.UseStaticFiles();
 
-            loggerFactory.AddFile("Logs/app-{Date}.log");
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
 
             if (env.IsDevelopment())
             {
