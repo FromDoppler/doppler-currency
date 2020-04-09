@@ -50,8 +50,7 @@ namespace Doppler.Currency
 
             services.AddHttpClient(httpClientPolicies.ClientName, c => { })
                 .ConfigurePrimaryHttpMessageHandler(() => handlerHttpClient)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(2))
-                .AddPolicyHandler(GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
+                .AddTransientHttpErrorPolicy(builder => GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
             services.AddSwaggerGen(c =>
             {
@@ -119,8 +118,6 @@ namespace Doppler.Currency
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

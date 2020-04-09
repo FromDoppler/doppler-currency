@@ -34,17 +34,21 @@ namespace Doppler.Currency.Test.Integration
             string expectedCurrencyCode)
         {
             //Arrange
+            var currency = new CurrencyDto
+            {
+                BuyValue = 10.3434M,
+                SaleValue = 30.34M,
+                Date = $"{DateTime.Parse(dateTime):yyyy-MM-dd}",
+                CurrencyCode = expectedCurrencyCode,
+                CurrencyName = currencyName
+            };
             _testServer.CurrencyServiceMock.Setup(x => x.GetCurrencyByCurrencyCodeAndDate(
                     It.IsAny<DateTime>(),
                     It.IsAny<CurrencyCodeEnum>()))
-                .ReturnsAsync(new EntityOperationResult<CurrencyDto>(new CurrencyDto
+                .ReturnsAsync(new EntityOperationResult<CurrencyDto>
                 {
-                    BuyValue = 10.3434M,
-                    SaleValue = 30.34M,
-                    Date = $"{DateTime.Parse(dateTime):yyyy-MM-dd}",
-                    CurrencyCode = expectedCurrencyCode,
-                    CurrencyName = currencyName
-                }));
+                    Entity = currency
+                });
 
             // Act
             var response = await _client.GetAsync($"Currency/{currencyCode}/{dateTime}");                          

@@ -243,7 +243,7 @@ namespace Doppler.Currency.Test
                 slackHooksServiceMock.Object,
                 loggerMock.Object);
 
-            var result = await service.GetCurrencyByCurrencyCodeAndDate(DateTime.Now, CurrencyCodeEnum.Mxn);
+            var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Mxn);
 
             Assert.False(result.Success);
 

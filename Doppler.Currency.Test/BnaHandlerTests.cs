@@ -238,9 +238,9 @@ namespace Doppler.Currency.Test
 
             Assert.False(result.Success);
             Assert.Equal(1, result.Errors.Count);
-            Assert.True(result.Errors.ContainsKey("Html Error Bna"));
+            Assert.True(result.Errors.ContainsKey("Holiday Error"));
 
-            result.Errors.TryGetValue("Html Error Bna", out var value);
+            result.Errors.TryGetValue("Holiday Error", out var value);
 
             Assert.True(result.Errors.Values.Contains(value));
         }
@@ -343,7 +343,7 @@ namespace Doppler.Currency.Test
                 loggerService: Mock.Of<ILogger<CurrencyService>>(),
                 loggerHandler: loggerMock.Object);
 
-            var result = await service.GetCurrencyByCurrencyCodeAndDate(DateTime.Now, CurrencyCodeEnum.Ars);
+            var result = await service.GetCurrencyByCurrencyCodeAndDate(dateTime, CurrencyCodeEnum.Ars);
 
             Assert.False(result.Success);
 

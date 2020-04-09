@@ -4,8 +4,8 @@ namespace CrossCutting
 {
     public class EntityOperationResult<TEntity> where TEntity : class
     {
-        public TEntity Entity { get; }
-        public bool Success => Errors.Count == 0;
+        public TEntity Entity { get; set; }
+        public bool Success => Entity != null && Errors.Count == 0;
         public IDictionary<string, List<string>> Errors { get; }
 
         public EntityOperationResult(TEntity entity = null)

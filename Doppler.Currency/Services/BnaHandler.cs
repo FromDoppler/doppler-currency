@@ -68,15 +68,7 @@ namespace Doppler.Currency.Services
             if (titleValidation == null)
             {
                 await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
-                result.AddError("Html Error Bna", $"Error getting HTML, not exist currency USD. Check Date {date.ToUniversalTime().ToShortDateString()}.");
-                return result;
-            }
-
-            var titleText = titleValidation.GetElementsByTagName("td").ElementAtOrDefault(0);
-            if (titleText != null && !titleText.InnerHtml.Equals(ServiceSettings.ValidationHtml))
-            {
-                await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
-                result.AddError("Html Error Bna", $"Error getting HTML, not exist currency USD. Check date {date.ToUniversalTime().ToShortDateString()}.");
+                result.AddError("Html error", $"Error getting HTML, not exist currency USD. Check Date {date.ToUniversalTime().ToShortDateString()}.");
                 return result;
             }
 
@@ -86,8 +78,9 @@ namespace Doppler.Currency.Services
             if (usdCurrency == null)
             {
                 Logger.LogError(new Exception("Error getting HTML"),
-                        $"Error getting HTML, please check HTML and date is holiday : {htmlPage}");
-                result.AddError("Html Error Bna", "Error getting HTML or date is holiday, please check Bna page.");
+                        $"Error getting HTML, please check is holiday : {htmlPage}");
+                result.AddError("Holiday Error", "Error getting date is holiday, please check Bna page.");
+
                 return result;
             }
 
@@ -99,12 +92,13 @@ namespace Doppler.Currency.Services
             if (buyColumn != null && saleColumn != null && dateColumn != null)
             {
                 Logger.LogInformation("Creating Currency object to returned to the client.");
-                
-                return CreateCurrency(date, saleColumn.InnerHtml, ServiceSettings.CurrencyCode, buyColumn.InnerHtml);
+                result.Entity = CreateCurrency(date, saleColumn.InnerHtml, ServiceSettings.CurrencyCode, buyColumn.InnerHtml);
+
+                return result;
             }
 
             await SendSlackNotification(htmlPage, date, CurrencyCodeEnum.Ars);
-            result.AddError("Html Error Bna", "Error getting HTML, please check HTML.");
+            result.AddError("Error Bna", "Error getting currency, please check HTML.");
             return result;
         }
 
