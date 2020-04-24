@@ -20,7 +20,7 @@ namespace Doppler.Currency.Controllers
             (_logger, _currencyService) = (logger, currencyService);
 
         [HttpGet("{currencyCode}/{date}")]
-        [SwaggerOperation(Summary = "Get currency by country and date")]
+        [SwaggerOperation(Summary = "Get currency by currency code and date")]
         [SwaggerResponse(200, "The currency is ok", typeof(CurrencyDto))]
         [SwaggerResponse(400, "The currency data is invalid")]
         public async Task<IActionResult> Get(
@@ -38,7 +38,7 @@ namespace Doppler.Currency.Controllers
             var result = await _currencyService.GetCurrencyByCurrencyCodeAndDate(date, currencyCode);
 
             if (result.Success)
-                return Ok(result);
+                return Ok(result.Entity);
 
             return BadRequest(result);
         }

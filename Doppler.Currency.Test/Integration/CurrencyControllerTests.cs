@@ -55,15 +55,15 @@ namespace Doppler.Currency.Test.Integration
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<EntityOperationResult<CurrencyDto>>(responseString);
+            var result = JsonConvert.DeserializeObject<CurrencyDto>(responseString);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotEmpty(responseString);
-            Assert.Equal("2012-01-02", result.Entity.Date);
-            Assert.Equal(30.34M, result.Entity.SaleValue);
-            Assert.Equal(10.3434M, result.Entity.BuyValue);
-            Assert.Equal(expectedCurrencyCode, result.Entity.CurrencyCode);
-            Assert.Equal(currencyName, result.Entity.CurrencyName);
+            Assert.Equal("2012-01-02", result.Date);
+            Assert.Equal(30.34M, result.SaleValue);
+            Assert.Equal(10.3434M, result.BuyValue);
+            Assert.Equal(expectedCurrencyCode, result.CurrencyCode);
+            Assert.Equal(currencyName, result.CurrencyName);
         }
 
         [Fact]
