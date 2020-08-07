@@ -36,7 +36,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'sh build-n-publish.sh ${GIT_COMMIT} ${TAG_NAME}'
+                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --version=${TAG_NAME}'
             }
         }
         stage('Generate version') {
