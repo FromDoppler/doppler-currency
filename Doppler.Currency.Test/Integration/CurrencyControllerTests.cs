@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CrossCutting;
 using Moq;
 using Xunit;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 
 namespace Doppler.Currency.Test.Integration
 {
-    public class CurrencyControllerTests : IClassFixture<TestServerFixture>
+    public class CurrencyControllerTests: IClassFixture<TestServerFixture>
     {
         private readonly TestServerFixture _testServer;
         private readonly HttpClient _client;
@@ -51,7 +55,7 @@ namespace Doppler.Currency.Test.Integration
                 });
 
             // Act
-            var response = await _client.GetAsync($"Currency/{currencyCode}/{dateTime}");                          
+            var response = await _client.GetAsync($"Currency/{currencyCode}/{dateTime}");
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -170,6 +174,48 @@ namespace Doppler.Currency.Test.Integration
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetCurrency_ShouldBeHttpStatusCodeUnauthorized_WhenRequestDoNotHaveToken()
+        {
+            // Arrange
+            var builder = WebHost.CreateDefaultBuilder()
+                .UseStartup<Startup>();
+            var server = new TestServer(builder);
+            var client = server.CreateClient();
+
+            // Act
+            var response = await client.GetAsync("Currency/1/2020-2-7");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetCurrency_ShouldBeHttpStatusCodeUnauthorized_WhenRequestHaveExpiredToken()
+        {
+            // Arrange
+            var builder = WebHost.CreateDefaultBuilder()
+                .UseStartup<Startup>();
+            var server = new TestServer(builder);
+            var client = server.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://custom.domain.com/currency/1/2020-2-7");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOjg4NDY5LCJ1bmlxdWVfbmFtZSI6ImFtb3NjaGluaUBtYWtpbmdzZW5zZS5jb20iLCJpc1N1IjpmYWxzZSwic3ViIjoiYW1vc2NoaW5pQG1ha2luZ3NlbnNlLmNvbSIsImN1c3RvbWVySWQiOiIxMzY3IiwiY2RoX2N1c3RvbWVySWQiOiIxMzY3Iiwicm9sZSI6IlVTRVIiLCJpYXQiOjE1OTQxNTUwMjYsImV4cCI6MTU5NDE1NjgyNn0.a4eVqSBptPJk0y9V5Id1yXEzkSroX7j9712W6HOYzb-9irc3pVFQrdWboHcZPLlbpHUdsuoHmFOU-l14N_CjVF9mwjz0Qp9x88JP2KD1x8YtlxUl4BkIneX6ODQ5q_hDeQX-yIUGoU2-cIXzle-JzRssg-XIbaf34fXnUSiUGnQRAuWg3IkmpeLu9fVSbYrY-qW1os1gBSq4NEESz4T87hJblJv3HWNQFJxAtvhG4MLX2ITm8vYNtX39pwI5gdkLY7bNzWmJ1Uphz1hR-sdCdM2oUWKmRmL7txsoD04w5ca7YbdHQGwCI92We4muOs0-N7a4JHYjuDM9lL_TbJGw2w");
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            var authenticateHeader = Assert.Single(response.Headers.WwwAuthenticate);
+            if (authenticateHeader != null)
+            {
+                Assert.Equal("Bearer", authenticateHeader.Scheme);
+                Assert.Contains("error=\"invalid_token\"", authenticateHeader.Parameter);
+                Assert.Contains("error_description=\"The token expired at ", authenticateHeader.Parameter);
+            }
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
     }
 }

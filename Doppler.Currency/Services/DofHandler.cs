@@ -41,7 +41,7 @@ namespace Doppler.Currency.Services
             };
 
             Logger.LogInformation("Sending request to Bna server.");
-            var client = HttpClientFactory.CreateClient(HttpClientPoliciesSettings.ClientName);
+            var client = HttpClientFactory.CreateClient();
             var httpResponse = await client.SendAsync(httpRequest).ConfigureAwait(false);
 
             Logger.LogInformation("Getting Html content of the Bna.");

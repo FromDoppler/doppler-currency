@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using Doppler.Currency.DopplerSecurity;
 using Doppler.Currency.Enums;
 using Doppler.Currency.Services;
 using Doppler.Currency.Settings;
@@ -73,6 +74,9 @@ namespace Doppler.Currency
                     { CurrencyCodeEnum.Ars, sp.GetRequiredService<BnaHandler>() },
                     { CurrencyCodeEnum.Mxn, sp.GetRequiredService<DofHandler>() }
                 });
+
+            services.AddDopplerSecurity();
+            services.AddCors();
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retry)
@@ -101,6 +105,14 @@ namespace Doppler.Currency
             }
 
             app.UseRouting();
+
+            app.UseCors(policy => policy
+                .SetIsOriginAllowed(isOriginAllowed: _ => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

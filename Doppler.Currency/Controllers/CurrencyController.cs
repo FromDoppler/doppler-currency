@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
 using Doppler.Currency.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
@@ -11,6 +12,7 @@ namespace Doppler.Currency.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class CurrencyController : ControllerBase
     {
         private readonly ILogger<CurrencyController> _logger;

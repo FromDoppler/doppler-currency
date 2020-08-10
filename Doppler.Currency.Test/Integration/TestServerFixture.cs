@@ -3,7 +3,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Services;
+using Doppler.Currency.Test.Helper;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,7 @@ namespace Doppler.Currency.Test.Integration
                 {
                     services.AddSingleton(CurrencyServiceMock.Object);
                     services.AddSingleton(SlackHookServiceMock.Object);
+                    services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
                 });
 
             Server = new TestServer(builder);
