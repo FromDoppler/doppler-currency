@@ -11,7 +11,6 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Doppler.Currency.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     [Authorize]
     public class CurrencyController : ControllerBase
     {
@@ -21,7 +20,7 @@ namespace Doppler.Currency.Controllers
         public CurrencyController(ILogger<CurrencyController> logger, ICurrencyService currencyService) => 
             (_logger, _currencyService) = (logger, currencyService);
 
-        [HttpGet("{currencyCode}/{date}")]
+        [HttpGet("billing-currency/{currencyCode}/{date}")]
         [SwaggerOperation(Summary = "Get currency by currency code and date")]
         [SwaggerResponse(200, "The currency is ok", typeof(CurrencyDto))]
         [SwaggerResponse(400, "The currency data is invalid")]

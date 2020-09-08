@@ -56,7 +56,7 @@ namespace Doppler.Currency.Test.Integration
                 });
 
             // Act
-            var response = await _client.GetAsync($"Currency/{currencyCode}/{dateTime}");
+            var response = await _client.GetAsync($"billing-currency/{currencyCode}/{dateTime}");
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -83,7 +83,7 @@ namespace Doppler.Currency.Test.Integration
                 .ReturnsAsync(result);
 
             // Act
-            var response = await _client.GetAsync("Currency/Ars/01-02-2012");
+            var response = await _client.GetAsync("billing-currency/Ars/01-02-2012");
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -132,7 +132,7 @@ namespace Doppler.Currency.Test.Integration
         public async Task GetCurrency_ShouldBeHttpStatusCodeBadRequest_WhenDateIsMajorThatDateNow()
         {
             // Act
-            var response = await _client.GetAsync("Currency/1/02-02-2550");
+            var response = await _client.GetAsync("billing-currency/1/02-02-2550");
 
             // Assert
             Assert.False(response.IsSuccessStatusCode);
@@ -155,7 +155,7 @@ namespace Doppler.Currency.Test.Integration
         public async Task GetCurrency_ShouldBeHttpStatusCodeBadRequest_WhenUrlDoesHaveInvalidDateTime(string dateTime, string currencyCode)
         {
             // Act
-            var response = await _client.GetAsync($"Currency/{currencyCode}/{dateTime}");
+            var response = await _client.GetAsync($"billing-currency/{currencyCode}/{dateTime}");
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -200,7 +200,7 @@ namespace Doppler.Currency.Test.Integration
             string currencyCode)
         {
             // Act
-            var response = await _client.GetAsync($"Currency/{currencyCode}/2020-2-7");
+            var response = await _client.GetAsync($"billing-currency/{currencyCode}/2020-2-7");
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -216,7 +216,7 @@ namespace Doppler.Currency.Test.Integration
             var client = server.CreateClient();
 
             // Act
-            var response = await client.GetAsync("Currency/1/2020-2-7");
+            var response = await client.GetAsync("billing-currency/1/2020-2-7");
 
             // Assert
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -230,7 +230,7 @@ namespace Doppler.Currency.Test.Integration
                 .UseStartup<Startup>();
             var server = new TestServer(builder);
             var client = server.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://custom.domain.com/currency/1/2020-2-7");
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://custom.domain.com/billing-currency/1/2020-2-7");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOjg4NDY5LCJ1bmlxdWVfbmFtZSI6ImFtb3NjaGluaUBtYWtpbmdzZW5zZS5jb20iLCJpc1N1IjpmYWxzZSwic3ViIjoiYW1vc2NoaW5pQG1ha2luZ3NlbnNlLmNvbSIsImN1c3RvbWVySWQiOiIxMzY3IiwiY2RoX2N1c3RvbWVySWQiOiIxMzY3Iiwicm9sZSI6IlVTRVIiLCJpYXQiOjE1OTQxNTUwMjYsImV4cCI6MTU5NDE1NjgyNn0.a4eVqSBptPJk0y9V5Id1yXEzkSroX7j9712W6HOYzb-9irc3pVFQrdWboHcZPLlbpHUdsuoHmFOU-l14N_CjVF9mwjz0Qp9x88JP2KD1x8YtlxUl4BkIneX6ODQ5q_hDeQX-yIUGoU2-cIXzle-JzRssg-XIbaf34fXnUSiUGnQRAuWg3IkmpeLu9fVSbYrY-qW1os1gBSq4NEESz4T87hJblJv3HWNQFJxAtvhG4MLX2ITm8vYNtX39pwI5gdkLY7bNzWmJ1Uphz1hR-sdCdM2oUWKmRmL7txsoD04w5ca7YbdHQGwCI92We4muOs0-N7a4JHYjuDM9lL_TbJGw2w");
 
             // Act
