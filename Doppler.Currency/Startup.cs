@@ -148,7 +148,7 @@ namespace Doppler.Currency
                 endpoints.MapControllers();
             });
 
-
+            // Swagger is disabled for int QA and prod because need set up for a reverse proxy
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
