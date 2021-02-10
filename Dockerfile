@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS restore
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.406-buster AS restore
 WORKDIR /src
 COPY Doppler.Currency.sln ./
 COPY Doppler.Currency/Doppler.Currency.csproj ./Doppler.Currency/Doppler.Currency.csproj
