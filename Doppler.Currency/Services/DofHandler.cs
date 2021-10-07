@@ -34,7 +34,7 @@ namespace Doppler.Currency.Services
             var uri = new Uri(ServiceSettings.Url + "&dfecha=" + dateUrl + "&hfecha=" + dateUrl);
 
             Logger.LogInformation("Building http request with url {uri}", uri);
-            var httpRequest = new HttpRequestMessage
+            using var httpRequest = new HttpRequestMessage
             {
                 RequestUri = uri,
                 Method = new HttpMethod("GET")
