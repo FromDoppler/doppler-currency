@@ -47,7 +47,7 @@ namespace CrossCutting.SlackHooksService
 
                 var builder = new UriBuilder(_slackHookSettings.Url);
 
-                var httpRequest = new HttpRequestMessage {RequestUri = builder.Uri, Method = new HttpMethod("POST")};
+                using var httpRequest = new HttpRequestMessage {RequestUri = builder.Uri, Method = new HttpMethod("POST")};
 
                 var requestContent = SafeJsonConvert.SerializeObject(JObject.FromObject(payloadData), _serializationSettings);
                 httpRequest.Content = new StringContent(requestContent, Encoding.UTF8);
