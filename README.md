@@ -3,7 +3,7 @@
 This App shows Usd currency by country
 
 ## Technology
-- Net Core 3.1
+- Net5
 - Swagger
 - Polly
 - AngleSharp
