@@ -10,7 +10,7 @@ This App shows Usd currency by country
 - Docker
 
 ## Install
-Download https://dotnet.microsoft.com/download/dotnet-core/3.1
+Download https://dotnet.microsoft.com/download/dotnet/5.0
 
 ## Configs
 Add Slack notification "SlackHook" key
