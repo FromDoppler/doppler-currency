@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
@@ -46,9 +45,9 @@ namespace Doppler.Currency
                 SslProtocols = SslProtocols.Tls12
             };
 
-            services.AddHttpClient(httpClientPolicies.ClientName, c => { })
+            services.AddHttpClient(httpClientPolicies.ClientName, _ => { })
                 .ConfigurePrimaryHttpMessageHandler(() => handlerHttpClient)
-                .AddTransientHttpErrorPolicy(builder => GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
+                .AddTransientHttpErrorPolicy(_ => GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
             services.Configure<CurrencySettings>("BnaService", Configuration.GetSection("CurrencyCode:BnaService"));
             services.Configure<CurrencySettings>("DofService", Configuration.GetSection("CurrencyCode:DofService"));
