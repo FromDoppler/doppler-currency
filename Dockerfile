@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS restore
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS restore
 WORKDIR /src
 COPY Doppler.Currency.sln ./
 COPY Doppler.Currency/Doppler.Currency.csproj ./Doppler.Currency/Doppler.Currency.csproj
@@ -16,7 +16,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "Doppler.Currency/Doppler.Currency.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
