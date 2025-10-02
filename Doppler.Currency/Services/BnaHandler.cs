@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using CrossCutting;
 using CrossCutting.SlackHooksService;
 using Doppler.Currency.Dtos;
 using Doppler.Currency.Enums;
+using Doppler.Currency.Responses;
 using Doppler.Currency.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Doppler.Currency.Services
 {
@@ -47,8 +52,50 @@ namespace Doppler.Currency.Services
 
             Logger.LogInformation("Getting Html content of the Bna.");
             var htmlPage = await httpResponse.Content.ReadAsStringAsync();
+            var data = await GetDataFromHtmlAsync(htmlPage, date);
+            
+            if (data.Success && data.Entity.SaleValue < 1000000)
+            {
+                Logger.LogInformation("Return Rate from Bna site.");
+                return data;
+            }
+            else
+            {
+                var message = $"Incorrect exchange rate from the Bna website: {data.Entity.SaleValue}. Date: {date.ToUniversalTime():yyyy-MM-dd}";
+                await SendNotificationToSlack(message);
+                Logger.LogInformation(message);
 
-            return await GetDataFromHtmlAsync(htmlPage, date);
+                EntityOperationResult<CurrencyDto> result = await GetDollarInfoFromDollarApi(date);
+
+                await SendNotificationToSlack($"Getting exchange rate from the DolarApi: {result.Entity.SaleValue}. Date: {date.ToUniversalTime():yyyy-MM-dd}");
+
+                return result;
+            }
+        }
+
+        private async Task<EntityOperationResult<CurrencyDto>> GetDollarInfoFromDollarApi(DateTime date)
+        {
+            Uri uri = new Uri(ServiceSettings.OfficialDollarApi);
+            Logger.LogInformation("Building http request with url {uri}", uri);
+            var client = HttpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{ServiceSettings.OfficialDollarApi}");
+
+            Logger.LogInformation("Getting Rate from dollar api.");
+            var json = await response.Content.ReadAsStringAsync();
+            var dolarInfo = JsonConvert.DeserializeObject<GetOfficalDollarResponse>(json);
+
+            var result = new EntityOperationResult<CurrencyDto>
+            {
+                Entity = new CurrencyDto
+                {
+                    Date = $"{date.ToUniversalTime():yyyy-MM-dd}",
+                    SaleValue = dolarInfo.Venta == 0 ? (decimal?)null : dolarInfo.Venta,
+                    BuyValue = dolarInfo.Compra == 0 ? (decimal?)null : dolarInfo.Compra,
+                    CurrencyName = ServiceSettings.CurrencyName,
+                    CurrencyCode = "ARS"
+                }
+            };
+            return result;
         }
 
         private async Task<EntityOperationResult<CurrencyDto>> GetDataFromHtmlAsync(string htmlPage, DateTime date)
