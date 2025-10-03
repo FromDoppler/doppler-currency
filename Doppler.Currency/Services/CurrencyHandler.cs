@@ -45,6 +45,11 @@ namespace Doppler.Currency.Services
             await SlackHooksService.SendNotification($"Can't get currency from {currencyCode} currency code, please check Html in the log or if the date is holiday {dateTime.ToUniversalTime():yyyy-MM-dd}");
         }
 
+        protected async Task SendNotificationToSlack(string message)
+        {
+            await SlackHooksService.SendNotification(message);
+        }
+
         protected CurrencyDto CreateCurrency(
             DateTime date,
             string sale,

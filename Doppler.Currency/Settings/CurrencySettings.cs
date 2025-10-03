@@ -3,6 +3,7 @@
     public class CurrencySettings
     {
         public string Url { get; set; }
+        public string OfficialDollarApi { get; set; }
         public string ValidationHtml { get; set; }
         public string NoCurrency { get; set; }
         public string CurrencyName { get; set; }
