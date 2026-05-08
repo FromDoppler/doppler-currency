@@ -34,34 +34,49 @@ namespace Doppler.Currency.Services
 
         public override async Task<EntityOperationResult<CurrencyDto>> Handle(DateTime date)
         {
-            Logger.LogInformation("building url to get html data.");
-            var dateUrl = System.Web.HttpUtility.UrlEncode($"{date:dd/MM/yyyy}");
-
-            var uri = new Uri(ServiceSettings.Url + "&fecha=" + dateUrl);
-
-            Logger.LogInformation("Building http request with url {uri}", uri);
-            using var httpRequest = new HttpRequestMessage
+            try
             {
-                RequestUri = uri,
-                Method = new HttpMethod("GET")
-            };
+                Logger.LogInformation("building url to get html data.");
+                var dateUrl = System.Web.HttpUtility.UrlEncode($"{date:dd/MM/yyyy}");
 
-            Logger.LogInformation("Sending request to Bna server.");
-            var client = HttpClientFactory.CreateClient();
-            var httpResponse = await client.SendAsync(httpRequest).ConfigureAwait(false);
+                var uri = new Uri(ServiceSettings.Url + "&fecha=" + dateUrl);
 
-            Logger.LogInformation("Getting Html content of the Bna.");
-            var htmlPage = await httpResponse.Content.ReadAsStringAsync();
-            var data = await GetDataFromHtmlAsync(htmlPage, date);
-            
-            if (data.Success && data.Entity.SaleValue < 1000000)
-            {
-                Logger.LogInformation("Return Rate from Bna site.");
-                return data;
+                Logger.LogInformation("Building http request with url {uri}", uri);
+                using var httpRequest = new HttpRequestMessage
+                {
+                    RequestUri = uri,
+                    Method = new HttpMethod("GET")
+                };
+
+                Logger.LogInformation("Sending request to Bna server.");
+                var client = HttpClientFactory.CreateClient();
+                var httpResponse = await client.SendAsync(httpRequest).ConfigureAwait(false);
+
+                Logger.LogInformation("Getting Html content of the Bna.");
+                var htmlPage = await httpResponse.Content.ReadAsStringAsync();
+                var data = await GetDataFromHtmlAsync(htmlPage, date);
+
+                if (data.Success && data.Entity.SaleValue < 1000000)
+                {
+                    Logger.LogInformation("Return Rate from Bna site.");
+                    return data;
+                }
+                else
+                {
+                    var message = $"Incorrect exchange rate from the Bna website: {data.Entity.SaleValue}. Date: {date.ToUniversalTime():yyyy-MM-dd}";
+                    await SendNotificationToSlack(message);
+                    Logger.LogInformation(message);
+
+                    EntityOperationResult<CurrencyDto> result = await GetDollarInfoFromDollarApi(date);
+
+                    await SendNotificationToSlack($"Getting exchange rate from the DolarApi: {result.Entity.SaleValue}. Date: {date.ToUniversalTime():yyyy-MM-dd}");
+
+                    return result;
+                }
             }
-            else
+            catch
             {
-                var message = $"Incorrect exchange rate from the Bna website: {data.Entity.SaleValue}. Date: {date.ToUniversalTime():yyyy-MM-dd}";
+                var message = $"Erro to get exchange rate from the Bna website. Date: {date.ToUniversalTime():yyyy-MM-dd}";
                 await SendNotificationToSlack(message);
                 Logger.LogInformation(message);
 
